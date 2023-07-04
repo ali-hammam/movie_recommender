@@ -2,17 +2,55 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Movie;
+use App\Models\MovieCluster;
 use App\Models\MovieUser;
 use App\Models\User;
+use App\Models\UserCluster;
 use App\Models\UserRating;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class RatingsController extends Controller
 {
-    public function dummy()
+    public function getAllMoviesWithRatings(Request $request)
     {
+        $clusted_id = UserCluster::where(['user_id' => $request['user_id']])->get('cluster_id')[0]['cluster_id'];
+        if (!$clusted_id) {
+            return response()->json([
+                'msg' => 'invalid user id'
+            ], 400);
+        }
+
+        $moviesWithRealUserRating = UserRating::where('user_id', $request['user_id'])->get();
+        $movies = MovieCluster::where('cluster_id', $clusted_id)->get();
+
+        $joinedRatings = $movies->map(function ($movie) use ($moviesWithRealUserRating) {
+            $isMovieMatched = $moviesWithRealUserRating->firstWhere('movie_id', $movie['movie_id']);
+            if ($isMovieMatched) {
+                $movie['real_rating'] = $isMovieMatched['rating'];
+            } else {
+                $movie['real_rating'] = -1;
+            }
+
+            $movie['predicted_rating'] = number_format($movie['predicted_rating'], 2);
+
+            return $movie;
+        });
+
+        $sortedCollection = collect($joinedRatings)->sortByDesc('real_rating');
+        $perPage = request()->get('movies_per_page', 10);
+        $currentPage = request()->get('page_number', 1);
+
+        $paginatedCollection = new LengthAwarePaginator(
+            $sortedCollection->slice(($currentPage - 1) * $perPage, $perPage),
+            $sortedCollection->count(),
+            $perPage,
+            $currentPage
+        );
+
         return response()->json([
-            'name' => 'hamma'
+            $paginatedCollection
         ]);
     }
 

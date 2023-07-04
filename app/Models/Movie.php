@@ -22,4 +22,9 @@ class Movie extends Model
     {
         return $this->hasMany(UserRating::class, 'movie_id', 'id');
     }
+
+    public function image()
+    {
+        return $this->hasOne(MovieImage::class, 'movie_id', 'id');
+    }
 }
