@@ -35,5 +35,7 @@ Route::delete('/removeRating', [RatingsController::class, 'removeRating']);
 Route::get('/movies', [RatingsController::class, 'getAllMoviesWithRatings']);
 
 Route::get('/users', [MovieUserController::class, 'getCurrentListOfUsers']);
+Route::get('/usersByClusters', [MovieUserController::class, 'getUsersByClusters']);
+
 Route::get('/list_of_genres', [MovieController::class, 'getListOfGenres']);
 Route::get('/movies_by_genre', [MovieController::class, 'getMoviesByGenre']);

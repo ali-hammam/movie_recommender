@@ -12,4 +12,9 @@ class MovieUser extends Model
     {
         return $this->hasOne(Occupation::class, 'occupation_id', 'occupation_id');
     }
+
+    public function userCluster()
+    {
+        return $this->haseOne(UserCluster::class, 'user_id', 'user_id');
+    }
 }
