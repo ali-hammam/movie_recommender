@@ -15,12 +15,14 @@ class RatingsController extends Controller
 {
     public function getAllMoviesWithRatings(Request $request)
     {
-        $clusted_id = UserCluster::where(['user_id' => $request['user_id']])->get('cluster_id')[0]['cluster_id'];
-        if (!$clusted_id) {
+
+        if (UserCluster::where(['user_id' => $request['user_id']])->get()->isEmpty()) {
             return response()->json([
                 'msg' => 'invalid user id'
             ], 400);
         }
+
+        $clusted_id = UserCluster::where(['user_id' => $request['user_id']])->get('cluster_id')[0]['cluster_id'];
 
         $moviesWithRealUserRating = UserRating::where('user_id', $request['user_id'])->get();
         $movies = MovieCluster::where('cluster_id', $clusted_id)
