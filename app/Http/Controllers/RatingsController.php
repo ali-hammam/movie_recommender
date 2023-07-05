@@ -23,7 +23,9 @@ class RatingsController extends Controller
         }
 
         $moviesWithRealUserRating = UserRating::where('user_id', $request['user_id'])->get();
-        $movies = MovieCluster::where('cluster_id', $clusted_id)->get();
+        $movies = MovieCluster::where('cluster_id', $clusted_id)
+            ->leftJoin('movie_images', 'movie_clusters.movie_id', '=', 'movie_images.movie_id')
+            ->get();
 
         $joinedRatings = $movies->map(function ($movie) use ($moviesWithRealUserRating) {
             $isMovieMatched = $moviesWithRealUserRating->firstWhere('movie_id', $movie['movie_id']);
